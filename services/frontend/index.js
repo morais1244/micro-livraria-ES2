@@ -87,4 +87,41 @@ document.addEventListener('DOMContentLoaded', function () {
             swal('Erro', 'Erro ao listar os produtos', 'error');
             console.error(err);
         });
+
+    document.getElementById('search-btn').addEventListener('click', () => {
+        const id = document.getElementById('search-id').value;
+        if (!id) return;
+
+        fetch('http://localhost:3000/product/' + id)
+            .then((data) => {
+                if (data.ok) return data.json();
+                throw data.statusText;
+            })
+            .then((book) => {
+                books.innerHTML = '';
+                if (book && book.id) {
+                    books.appendChild(newBook(book));
+
+                    document.querySelectorAll('.button-shipping').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            const btnId = e.target.getAttribute('data-id');
+                            const cep = document.querySelector(`.book[data-id="${btnId}"] input`).value;
+                            calculateShipping(btnId, cep);
+                        });
+                    });
+
+                    document.querySelectorAll('.button-buy').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            swal('Compra de livro', 'Sua compra foi realizada com sucesso', 'success');
+                        });
+                    });
+                } else {
+                    swal('Aviso', 'Produto não encontrado', 'warning');
+                }
+            })
+            .catch((err) => {
+                swal('Erro', 'Erro ao pesquisar o produto', 'error');
+                console.error(err);
+            });
+    });
 });
